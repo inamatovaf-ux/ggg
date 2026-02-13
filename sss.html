@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ауырлы? к?ші - Интерактивті зертхана</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.2em;
+        }
+        
+        .formula-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2em;
+            font-weight: bold;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .visualization {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            position: relative;
+            min-height: 500px;
+        }
+        
+        .controls {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+        }
+        
+        .control-group {
+            margin-bottom: 25px;
+        }
+        
+        .control-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+            font-size: 1.1em;
+        }
+        
+        input[type="range"] {
+            width: 100%;
+            height: 8px;
+            border-radius: 5px;
+            background: #ddd;
+            outline: none;
+            -webkit-appearance: none;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+        }
+        
+        input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+            border: none;
+        }
+        
+        .value-display {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 5px;
+            font-size: 0.95em;
+            color: #666;
+        }
+        
+        .current-value {
+            font-weight: bold;
+            color: #667eea;
+            font-size: 1.1em;
+        }
+        
+        canvas {
+            border: 3px solid #667eea;
+            border-radius: 10px;
+            background: linear-gradient(to bottom, #87CEEB 0%, #E0F6FF 100%);
+            display: block;
+            margin: 0 auto;
+        }
+        
+        .result-box {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 20px;
+            box-shadow: 0 10px 30px rgba(245, 87, 108, 0.3);
+        }
+        
+        .comparison-box {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .object-result {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 15px;
+            border-radius: 10px;
+        }
+        
+        .object-result h4 {
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+        
+        .result-item {
+            margin: 8px 0;
+            font-size: 1.1em;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .result-value {
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+        
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2196F3;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        
+        .info-box h3 {
+            color: #1976D2;
+            margin-bottom: 10px;
+        }
+        
+        .unit-btn {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #667eea;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            font-size: 1em;
+        }
+        
+        .unit-btn.active {
+            background: #667eea;
+            color: white;
+        }
+        
+        .unit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            .comparison-box {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>?? Ауырлы? к?ші</h1>
+        <p class="subtitle">Интерактивті физика зертханасы / Сила тяжести</p>
+        
+        <div class="formula-box">
+            F = m ? g
+        </div>
+        
+        <div class="main-content">
+            <div class="visualization">
+                <h2 style="text-align: center; color: #667eea; margin-bottom: 15px;">???? Салыстыру / Сравнение</h2>
+                <canvas id="gravityCanvas" width="500" height="450"></canvas>
+            </div>
+            
+            <div class="controls">
+                <h2 style="color: #667eea; margin-bottom: 20px;">?? Параметрлер / Параметры</h2>
+                
+                <div class="control-group">
+                    <label>?? Объект 1 - Масса:</label>
+                    <input type="range" id="mass1Slider" min="5" max="100" value="10" step="1">
+                    <div class="value-display">
+                        <span>5 кг</span>
+                        <span class="current-value" id="mass1Value">10 кг</span>
+                        <span>100 кг</span>
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <label>?? Объект 2 - Масса:</label>
+                    <input type="range" id="mass2Slider" min="5" max="100" value="80" step="1">
+                    <div class="value-display">
+                        <span>5 кг</span>
+                        <span class="current-value" id="mass2Value">80 кг</span>
+                        <span>100 кг</span>
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <label>?? Еркін т?су ?деуі (g):</label>
+                    <input type="range" id="gravitySlider" min="1" max="25" value="9.8" step="0.1">
+                    <div class="value-display">
+                        <span>1 м/с?</span>
+                        <span class="current-value" id="gravityValue">9.8 м/с?</span>
+                        <span>25 м/с?</span>
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <label>?? Анимация:</label>
+                    <div class="button-group">
+                        <button class="unit-btn active" id="startBtn" onclick="startFalling()">?? ??лату</button>
+                        <button class="unit-btn" onclick="resetAnimation()">?? ?айталау</button>
+                    </div>
+                </div>
+                
+                <div class="result-box">
+                    <h3 style="margin-bottom: 15px;">?? Н?тижелер / Результаты:</h3>
+                    <div class="comparison-box">
+                        <div class="object-result">
+                            <h4>?? Объект 1 (же?іл)</h4>
+                            <div class="result-item">
+                                <span>Масса:</span>
+                                <span class="result-value" id="mass1Result">10 кг</span>
+                            </div>
+                            <div class="result-item">
+                                <span>К?ш F:</span>
+                                <span class="result-value" id="force1Result">98 Н</span>
+                            </div>
+                            <div class="result-item">
+                                <span>Уа?ыт:</span>
+                                <span class="result-value" id="time1Result">0.00 с</span>
+                            </div>
+                        </div>
+                        
+                        <div class="object-result">
+                            <h4>?? Объект 2 (ауыр)</h4>
+                            <div class="result-item">
+                                <span>Масса:</span>
+                                <span class="result-value" id="mass2Result">80 кг</span>
+                            </div>
+                            <div class="result-item">
+                                <span>К?ш F:</span>
+                                <span class="result-value" id="force2Result">784 Н</span>
+                            </div>
+                            <div class="result-item">
+                                <span>Уа?ыт:</span>
+                                <span class="result-value" id="time2Result">0.00 с</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 15px; padding: 15px; background: rgba(255,255,255,0.2); border-radius: 8px;">
+                        <div class="result-item">
+                            <span><strong>?деу (a = g):</strong></span>
+                            <span class="result-value" id="gResult">9.8 м/с?</span>
+                        </div>
+                        <div class="result-item">
+                            <span><strong>Жылдамды? (v):</strong></span>
+                            <span class="result-value" id="velocityResult">0 м/с</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="info-box">
+                    <h3>?? Галилейді? эксперименті:</h3>
+                    <p><strong>Вакуумда перо мен тас бір мезгілде ??лайды!</strong></p>
+                    <p style="margin-top: 8px;">Себебі: Барлы? денелер <strong>бірдей ?деумен</strong> ??лайды (a = g), масса ?анша болса да!</p>
+                    <p style="margin-top: 8px;"><strong>F = m ? g</strong> - к?ш ?рт?рлі, біра? <strong>a = g</strong> - ?деу бірдей! ?</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const canvas = document.getElementById('gravityCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        let mass1 = 10;
+        let mass2 = 80;
+        let gravity = 9.8;
+        let isFalling = false;
+        let object1Y = 50;
+        let object2Y = 50;
+        let velocity = 0;
+        let time = 0;
+        let animationId = null;
+        
+        const mass1Slider = document.getElementById('mass1Slider');
+        const mass2Slider = document.getElementById('mass2Slider');
+        const gravitySlider = document.getElementById('gravitySlider');
+        
+        const GROUND_Y = 400;
+        const PIXELS_PER_METER = 25;
+        
+        function drawObject(x, y, mass, color, label) {
+            const size = Math.min(15 + mass * 0.3, 50);
+            
+            // Тень
+            const shadowOpacity = Math.max(0.1, 0.3 - (GROUND_Y - y) / 1000);
+            const shadowSize = Math.max(15, size * 0.6 * (1 - (GROUND_Y - y) / 800));
+            ctx.fillStyle = `rgba(0, 0, 0, ${shadowOpacity})`;
+            ctx.beginPath();
+            ctx.ellipse(x, GROUND_Y + 5, shadowSize, 8, 0, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Объект
+            const gradient = ctx.createRadialGradient(
+                x - size * 0.3, 
+                y - size * 0.3, 
+                0, 
+                x, 
+                y, 
+                size
+            );
+            
+            if (color === 'blue') {
+                gradient.addColorStop(0, '#6B9BFF');
+                gradient.addColorStop(1, '#2A5FC9');
+            } else {
+                gradient.addColorStop(0, '#FF6B6B');
+                gradient.addColorStop(1, '#C92A2A');
+            }
+            
+            ctx.fillStyle = gradient;
+            ctx.beginPath();
+            ctx.arc(x, y, size / 2, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Блик
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+            ctx.beginPath();
+            ctx.arc(x - size * 0.2, y - size * 0.2, size * 0.2, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Текст массы
+            ctx.fillStyle = 'white';
+            ctx.font = 'bold 12px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText(`${mass} кг`, x, y + 4);
+            
+            // Стрелка силы
+            if (isFalling || time > 0) {
+                const force = mass * gravity;
+                const arrowLength = 40;
+                
+                ctx.strokeStyle = color === 'blue' ? '#2A5FC9' : '#C92A2A';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.moveTo(x, y + size / 2);
+                ctx.lineTo(x, y + size / 2 + arrowLength);
+                ctx.stroke();
+                
+                ctx.fillStyle = ctx.strokeStyle;
+                ctx.beginPath();
+                ctx.moveTo(x, y + size / 2 + arrowLength);
+                ctx.lineTo(x - 6, y + size / 2 + arrowLength - 10);
+                ctx.lineTo(x + 6, y + size / 2 + arrowLength - 10);
+                ctx.closePath();
+                ctx.fill();
+                
+                // Текст силы
+                ctx.fillStyle = ctx.strokeStyle;
+                ctx.font = 'bold 11px Arial';
+                ctx.textAlign = 'left';
+                ctx.fillText(`F=${force.toFixed(0)}Н`, x + size/2 + 5, y + size/2 + 20);
+            }
+            
+            return size;
+        }
+        
+        function drawScene() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Земля
+            ctx.fillStyle = '#8B4513';
+            ctx.fillRect(0, GROUND_Y, canvas.width, 50);
+            
+            // Трава
+            ctx.fillStyle = '#228B22';
+            ctx.fillRect(0, GROUND_Y - 10, canvas.width, 10);
+            
+            // Линия старта (пунктир)
+            ctx.strokeStyle = '#999';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([5, 5]);
+            ctx.beginPath();
+            ctx.moveTo(0, 50);
+            ctx.lineTo(canvas.width, 50);
+            ctx.stroke();
+            ctx.setLineDash([]);
+            
+            // Рисуем объекты
+            const size1 = drawObject(150, object1Y, mass1, 'blue', '1');
+            const size2 = drawObject(350, object2Y, mass2, 'red', '2');
+            
+            // Заголовок
+            ctx.fillStyle = '#333';
+            ctx.font = 'bold 16px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText(`g = ${gravity} м/с?`, 250, 25);
+            
+            // Время
+            if (isFalling || time > 0) {
+                ctx.fillStyle = '#667eea';
+                ctx.font = 'bold 20px Arial';
+                ctx.fillText(`?? t = ${time.toFixed(2)} с`, 250, 50);
+                
+                // Скорость
+                ctx.fillStyle = '#f5576c';
+                ctx.font = 'bold 16px Arial';
+                ctx.fillText(`v = ${velocity.toFixed(2)} м/с`, 250, 75);
+            }
+            
+            // Если оба на земле - показываем результат
+            if (!isFalling && time > 0) {
+                ctx.fillStyle = '#228B22';
+                ctx.font = 'bold 18px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('? Одновременно достигли земли!', 250, 430);
+            }
+        }
+        
+        function updateValues() {
+            mass1 = parseFloat(mass1Slider.value);
+            mass2 = parseFloat(mass2Slider.value);
+            gravity = parseFloat(gravitySlider.value);
+            
+            document.getElementById('mass1Value').textContent = `${mass1} кг`;
+            document.getElementById('mass2Value').textContent = `${mass2} кг`;
+            document.getElementById('gravityValue').textContent = `${gravity} м/с?`;
+            
+            const force1 = mass1 * gravity;
+            const force2 = mass2 * gravity;
+            
+            document.getElementById('mass1Result').textContent = `${mass1} кг`;
+            document.getElementById('mass2Result').textContent = `${mass2} кг`;
+            document.getElementById('force1Result').textContent = `${force1.toFixed(1)} Н`;
+            document.getElementById('force2Result').textContent = `${force2.toFixed(1)} Н`;
+            document.getElementById('gResult').textContent = `${gravity} м/с?`;
+            
+            if (!isFalling) {
+                drawScene();
+            }
+        }
+        
+        function animate() {
+            if (!isFalling) return;
+            
+            const dt = 0.016; // ~60 FPS
+            time += dt;
+            
+            // v = g * t (одинаковая для обоих!)
+            velocity = gravity * time;
+            
+            // s = (g * t?) / 2
+            const distance = (gravity * time * time) / 2;
+            object1Y = 50 + distance * PIXELS_PER_METER;
+            object2Y = 50 + distance * PIXELS_PER_METER; // ОДИНАКОВО!
+            
+            // Проверка достижения земли
+            const size1 = Math.min(15 + mass1 * 0.3, 50);
+            const size2 = Math.min(15 + mass2 * 0.3, 50);
+            
+            if (object1Y + size1 / 2 >= GROUND_Y || object2Y + size2 / 2 >= GROUND_Y) {
+                // Останавливаем оба объекта одновременно
+                object1Y = GROUND_Y - size1 / 2;
+                object2Y = GROUND_Y - size2 / 2;
+                isFalling = false;
+                document.getElementById('startBtn').textContent = '?? ??лату / Падение';
+            }
+            
+            // Обновляем дисплей
+            document.getElementById('velocityResult').textContent = `${velocity.toFixed(2)} м/с`;
+            document.getElementById('time1Result').textContent = `${time.toFixed(2)} с`;
+            document.getElementById('time2Result').textContent = `${time.toFixed(2)} с`;
+            
+            drawScene();
+            
+            if (isFalling) {
+                animationId = requestAnimationFrame(animate);
+            }
+        }
+        
+        function startFalling() {
+            if (isFalling) {
+                isFalling = false;
+                cancelAnimationFrame(animationId);
+                document.getElementById('startBtn').textContent = '?? ??лату / Падение';
+            } else {
+                if (time > 0) {
+                    resetAnimation();
+                }
+                isFalling = true;
+                document.getElementById('startBtn').textContent = '?? То?тату / Пауза';
+                animate();
+            }
+        }
+        
+        function resetAnimation() {
+            isFalling = false;
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+            }
+            object1Y = 50;
+            object2Y = 50;
+            velocity = 0;
+            time = 0;
+            document.getElementById('velocityResult').textContent = '0 м/с';
+            document.getElementById('time1Result').textContent = '0.00 с';
+            document.getElementById('time2Result').textContent = '0.00 с';
+            document.getElementById('startBtn').textContent = '?? ??лату / Падение';
+            drawScene();
+        }
+        
+        mass1Slider.addEventListener('input', () => {
+            if (!isFalling) updateValues();
+        });
+        
+        mass2Slider.addEventListener('input', () => {
+            if (!isFalling) updateValues();
+        });
+        
+        gravitySlider.addEventListener('input', updateValues);
+        
+        updateValues();
+        resetAnimation();
+    </script>
+</body>
+</html>
